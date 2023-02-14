@@ -22,7 +22,8 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 mongoose.set("strictQuery", false);
-mongoose.connect("mongodb://127.0.0.1:27017/userDB", { useNewUrlParser: true });
+const url=process.env.DB_URL;
+mongoose.connect(url, { useNewUrlParser: true });
 const userSchema = new mongoose.Schema({
   email: String,
   password: String,
@@ -48,7 +49,7 @@ passport.use(
     {
       clientID: process.env.CLIENT_ID,
       clientSecret: process.env.CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/auth/google/secrets",
+      callbackURL: "https://secrets-23pe.onrender.com/auth/google/secrets",
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     function (accessToken, refreshToken, profile, cb) {
@@ -191,6 +192,7 @@ app.post("/login", function (req, res) {
     });
   
 });
-app.listen(3000, function () {
-  console.log("Server started on port 3000");
+const port=process.env.PORT || 3000;
+app.listen(port, function () {
+  console.log("Server started");
 });
