@@ -9,7 +9,7 @@ const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const findOrCreate = require("mongoose-findorcreate");
-const axios = require('axios');
+import fetch from 'node-fetch';
 const app = express();
 
 app.use(express.static("public"));
@@ -125,7 +125,10 @@ app.post("/register", function (req, res){
   const resKey = req.body['g-recaptcha-response'];
   const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${resKey}`
 
-  axios.post(url).then((response) => response.json())
+  fetch(url, {
+    method: 'post',
+  })
+    .then((response) => response.json())
     .then((google_response) => {
       if (google_response.success == true) {
         User.register(
@@ -169,7 +172,9 @@ app.post("/login", function (req, res) {
   const resKey = req.body['g-recaptcha-response'];
   const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${resKey}`
 
-  axios.post(url)
+  fetch(url, {
+    method: 'post',
+  })
     .then((response) => response.json())
     .then((google_response) => {
       if (google_response.success == true) {
