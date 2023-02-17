@@ -2,18 +2,20 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
-const app = express();
+const mongoose = require("mongoose");
 const session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const findOrCreate = require("mongoose-findorcreate");
-const mongoose = require("mongoose");
+
+const app = express();
+
+app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
-app.use(
-  session({
+
+app.use(session({
     secret: "This is my Secret",
     resave: false,
     saveUninitialized: false,
@@ -114,7 +116,7 @@ app.get("/logout", function (req, res) {
   });
 });
 const secretKey=process.env.SECRET_KEY;
-app.post("/register", function (req, res) {
+app.post("/register", function (req, res){
   const resKey = req.body['g-recaptcha-response'];
   const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${resKey}`
 
@@ -130,7 +132,7 @@ app.post("/register", function (req, res) {
           function (err, user) {
             if (err) {
               console.log(err);
-              res.redirect("/");
+              res.redirect("/register");
             } else {
               passport.authenticate("local")(req, res, function () {
                 res.redirect("/secrets");
@@ -152,10 +154,12 @@ app.post("/submit", function (req, res) {
     if (err) {
       console.log(err);
     } else {
+      if (foundUser) {
       foundUser.secret = submitSecret;
       foundUser.save(function () {
         res.redirect("/secrets");
       });
+    }
     }
   });
 });
@@ -176,7 +180,6 @@ app.post("/login", function (req, res) {
         req.login(user, function (err) {
           if (err) {
             console.log(err);
-            res.redirect("/");
           } else {
             passport.authenticate("local")(req, res, function () {
               res.redirect("/secrets");
