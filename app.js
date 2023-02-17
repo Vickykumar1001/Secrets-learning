@@ -14,8 +14,12 @@ const app = express();
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.set('trust proxy', 1);
 app.use(session({
+  cookie:{
+    secure: true,
+    maxAge:60000
+       },
     secret: "This is my Secret",
     resave: false,
     saveUninitialized: false,
